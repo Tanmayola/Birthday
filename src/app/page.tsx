@@ -1,65 +1,179 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
+
+export default function BirthdayPage() {
+  const [showConfetti, setShowConfetti] = useState(true);
+  const [candleLit, setCandleLit] = useState(false);
+  const [messageIndex, setMessageIndex] = useState(0);
+  const { width, height } = useWindowSize();
+
+  const birthdayMessages = [
+    "Happy Birthday, Mama! 🎉",
+    "You're the best mama in the world! 💖",
+    "Thank you for all your love and care! 🌟",
+    "Wishing you endless joy and happiness! 🎂",
+    "You make every day special! 🌈"
+  ];
+
+  useEffect(() => {
+    const messageTimer = setInterval(() => {
+      setMessageIndex((prev) => (prev + 1) % birthdayMessages.length);
+    }, 3000);
+
+    const candleTimer = setTimeout(() => {
+      setCandleLit(true);
+    }, 1000);
+
+    const confettiTimer = setTimeout(() => {
+      setShowConfetti(false);
+    }, 10000);
+
+    return () => {
+      clearInterval(messageTimer);
+      clearTimeout(candleTimer);
+      clearTimeout(confettiTimer);
+    };
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 overflow-hidden relative">
+      {showConfetti && (
+        <Confetti
+          width={width}
+          height={height}
+          recycle={false}
+          numberOfPieces={200}
+          gravity={0.1}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+      )}
+
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-yellow-400 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.3, 1, 0.3],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 2 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5, type: "spring" }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent mb-4">
+            Happy Birthday!
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <motion.h2
+            key={messageIndex}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="text-2xl md:text-4xl text-purple-700 font-semibold"
+          >
+            {birthdayMessages[messageIndex]}
+          </motion.h2>
+        </motion.div>
+
+        <motion.div
+          initial={{ rotate: -10 }}
+          animate={{ rotate: 10 }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut"
+          }}
+          className="relative mb-8"
+        >
+          <div className="text-8xl md:text-9xl">🎂</div>
+          <motion.div
+            className="absolute -top-4 left-1/2 transform -translate-x-1/2"
+            animate={{ scale: candleLit ? [1, 1.2, 1] : 1 }}
+            transition={{ duration: 0.5, repeat: candleLit ? Infinity : 0 }}
+          >
+            <div className="text-4xl">🕯️</div>
+            {candleLit && (
+              <motion.div
+                className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-2 h-4 bg-orange-400 rounded-full"
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 0.3, repeat: Infinity }}
+              />
+            )}
+          </motion.div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 max-w-md mx-auto shadow-2xl"
+        >
+          <div className="flex justify-center space-x-4 mb-6">
+            {['💝', '🌹', '✨', '🎈', '🎁'].map((emoji, index) => (
+              <motion.div
+                key={index}
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 1.2 + index * 0.1, duration: 0.5 }}
+                className="text-3xl"
+              >
+                {emoji}
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setShowConfetti(true);
+              setTimeout(() => setShowConfetti(false), 5000);
+            }}
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-3 px-6 rounded-full hover:shadow-lg transition-shadow"
+          >
+            🎉 More Celebration! 🎉
+          </motion.button>
+        </motion.div>
+
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+          className="mt-8 text-center"
+        >
+          <p className="text-purple-600 font-medium text-lg">
+            Made with all my love for you! 💕
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        </motion.div>
+      </div>
+
+      <style jsx global>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+      `}</style>
     </div>
   );
 }
